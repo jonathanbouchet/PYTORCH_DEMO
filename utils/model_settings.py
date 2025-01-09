@@ -5,12 +5,30 @@ import pandas as pd
 import torch
 import torch.nn as nn
 import numpy as np
+from utils.custom_dataloader import ToyData
 
 if "train_loss_val" not in st.session_state:
     st.session_state.train_loss_val = []
 
 if "train_loss_epoch" not in st.session_state:
     st.session_state.train_loss_epoch = []
+
+def make_data_loader():
+    """load data into pytorch dataloader
+    1. split X, y into train / test
+    2. make dataset
+    3. convert dataset to dataloader using batchsize defined by the user
+    """
+
+    df = st.session_state.data_generated[["Feature_0","Feature_1","target"]]
+    train, test = train_test_split(df, test_size=st.session_state.test_split)
+    print(f"train size : {train.shape}, test size: {test.shape}")
+
+    train_data = ToyData(df=train)
+    test_data = ToyData(df=test)
+
+    return train_data, test_data
+
 
 def accuracy_fn(y_true, y_pred):
     correct = torch.eq(y_true, y_pred).sum().item() # torch.eq() calculates where two tensors are equal
@@ -45,7 +63,7 @@ def run_model():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     with st.spinner("creating model"):
         model = make_model()
-        time.sleep(1)
+        time.sleep(2)
     # Setup loss and optimizer 
     loss_fn = nn.BCEWithLogitsLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.05)

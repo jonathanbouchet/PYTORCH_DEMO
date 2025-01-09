@@ -162,7 +162,7 @@ if plot_type is not None:
 
             st.sidebar.button(label="reset parameters", help="clear parameters plot", on_click=rerun_plot_type)
         
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns([0.6, 0.4])
     with col1:
         if st.session_state.data_submitted is True:
             df = make_df()

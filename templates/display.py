@@ -17,6 +17,9 @@ if "num_epochs" not in st.session_state:
 if "train_test_split" not in st.session_state:
     st.session_state.train_test_split = None
 
+if "batch_size" not in st.session_state:
+    st.session_state.batch_size = None
+
 st.title("Train Model")
 
 if st.session_state["data_generated"] is None:
@@ -44,12 +47,18 @@ else:
                 value=0.2,
                 help="proportion of test samples")
     st.session_state.test_split = test_split
+
+    batch_size = st.sidebar.number_input(label="batch size", 
+                min_value=4, 
+                max_value=32, 
+                step=4,
+                value=4,
+                help="the size of the batch samples")
+    st.session_state.batch_size = batch_size
     
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns([0.6, 0.4])
     with col1:
         if st.session_state.features_selected:
-            # x0 = st.session_state.x0
-            # x1 = st.session_state.x1
             x0 = "Feature_0"
             x1 = "Feature_1"
             if st.session_state.data_generated is not None:
@@ -68,7 +77,13 @@ else:
                             fig = px.scatter(tmp_df, x="Feature_0", y="Feature_1", color='target2', range_x=[x_min, x_max], range_y=[y_min, y_max])
                             st.plotly_chart(fig, use_container_width=True, key=f"tmp_df_{i}")
                             time.sleep(0.5)
-                    train_model.run_model()
+                    
+                    train, test = mod_def.make_data_loader()
+                    st.text("Train Dataset")
+                    st.code(train.__repr__())
+                    st.text("Test Dataset")
+                    st.code(test.__repr__())
+                    # train_model.run_model()
                     # display_result()
     with col2:
         st.subheader("debug", divider="red") 
