@@ -36,6 +36,9 @@ def accuracy_fn(y_true, y_pred):
     return acc
 
 def make_model():
+    """define CNN model architecture
+    :return _type_: _description_
+    """
     # Make device agnostic code
     device = "cuda" if torch.cuda.is_available() else "cpu"
     device
@@ -59,6 +62,8 @@ def make_model():
     return model
 
 def run_model():
+    """run full torch pipeline
+    """
     # Make device agnostic code
     device = "cuda" if torch.cuda.is_available() else "cpu"
     with st.spinner("creating model"):

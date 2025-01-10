@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 
 class ToyData(Dataset):
+    """custom dataset class
+    """
     def __init__(self, df: pd.DataFrame):
         self.X = torch.from_numpy(np.array(df[['Feature_0', 'Feature_1']])).type(torch.float)
         self.y = torch.from_numpy(np.array(df[['target']])).type(torch.float)

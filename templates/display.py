@@ -83,6 +83,9 @@ else:
                     st.code(train.__repr__())
                     st.text("Test Dataset")
                     st.code(test.__repr__())
+                    c1, c2 = st.columns(2)
+                    c1.metric(label="train data", value=len(train), border=True)
+                    c2.metric(label="test data", value=len(test), border=True)
                     # train_model.run_model()
                     # display_result()
     with col2:

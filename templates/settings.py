@@ -3,7 +3,6 @@ from sklearn import datasets
 import pandas as pd
 import plotly.express as px
 
-
 if "plot_type" not in st.session_state:
     st.session_state.plot_type = None
 
@@ -18,7 +17,6 @@ if "data_submitted" not in st.session_state:
 
 if "data_generated" not in st.session_state:
     st.session_state.data_generated = None
-
 
 st.title("Data preparation")
 
@@ -40,6 +38,10 @@ def rerun_plot_type():
     st.session_state.data_generated = None
 
 def display_data():
+    """display toy dataset
+
+    :return _type_: _description_
+    """
     x0 = "Feature_0"
     x1 = "Feature_1"
     df = st.session_state.data_generated
@@ -49,7 +51,11 @@ def display_data():
     return fig
 
 # @st.cache_data
-def make_df():
+def make_df() -> pd.DataFrame:
+    """create toy dataset based on the user parameters
+
+    :return pd.DataFrame: dataframe
+    """
     print("in make_df")
     n_features: int = 2
     params =  st.session_state.data_parameters
@@ -65,7 +71,6 @@ def make_df():
     else:
         print("not implemented")
         data, targets = None, None
-    # st.session_state.data_generated = {"X": data, "y": targets}
 
     df = pd.DataFrame(data, columns = [f"Feature_{i}" for i in range(n_features)])
     # st.session_state.features = [f"Feature_{i}" for i in range(n_features)]
