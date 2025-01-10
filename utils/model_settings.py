@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from utils.custom_dataloader import ToyData
+from torch.utils.data import DataLoader
 
 if "train_loss_val" not in st.session_state:
     st.session_state.train_loss_val = []
@@ -28,7 +29,6 @@ def make_data_loader():
     test_data = ToyData(df=test)
 
     return train_data, test_data
-
 
 def accuracy_fn(y_true, y_pred):
     correct = torch.eq(y_true, y_pred).sum().item() # torch.eq() calculates where two tensors are equal
@@ -58,7 +58,7 @@ def make_model():
             # Intersperse the ReLU activation function between layers
             return self.layer_4(self.leakyRelu(self.layer_3(self.leakyRelu(self.layer_2(self.leakyRelu(self.layer_1(x)))))))
 
-    model = CircleModel().to(device)
+    model = CircleModel()
     return model
 
 def run_model():
@@ -153,3 +153,118 @@ def run_model():
 
         # save model in session_state
         st.session_state.model = model
+
+
+def run(train: ToyData, test:ToyData):
+    """run training /testing pipeline
+
+    :param ToyData train: train data custom dataset
+    :param ToyData test: test data custom dataset
+    """
+    # convert Dataset to Loader
+    train_loader = DataLoader(
+    dataset=train,
+    batch_size=st.session_state.batch_size,
+    shuffle=True,
+    num_workers=0
+    )
+
+    test_loader = DataLoader(
+    dataset=test,
+    batch_size=st.session_state.batch_size,
+    shuffle=False,
+    num_workers=0
+    )
+
+    # Make device agnostic code
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    with st.spinner("creating model"):
+        model = make_model()
+        time.sleep(1)
+    model.to(device)
+    
+    loss_fn =  nn.BCEWithLogitsLoss()
+    optimizer = torch.optim.SGD(params=model.parameters(), lr=0.1)
+
+    epochs = st.session_state.num_epochs
+    for epoch in range(epochs):
+        print(f"Epoch: {epoch}\n---------")
+        st.text(f"Epoch: {epoch}\n---------")
+        train_step(data_loader=train_loader, 
+            model=model, 
+            loss_fn=loss_fn,
+            optimizer=optimizer,
+            accuracy_fn=accuracy_fn
+        )
+        test_step(data_loader=test_loader,
+            model=model,
+            loss_fn=loss_fn,
+            accuracy_fn=accuracy_fn
+        )
+
+def train_step(model: torch.nn.Module,
+               data_loader: torch.utils.data.DataLoader,
+               loss_fn: torch.nn.Module,
+               optimizer: torch.optim.Optimizer,
+               accuracy_fn,
+               device= "cpu"):
+    train_loss, train_acc = 0, 0
+    model.to(device)
+    for batch, (X, y) in enumerate(data_loader):
+        # Send data to GPU
+        X, y = X.to(device), y.to(device)
+
+        # 1. Forward pass
+        y_logits = model(X)
+        y_pred = torch.round(torch.sigmoid(y_logits))
+
+        # 2. Calculate loss
+        loss = loss_fn(y_logits, y)
+        train_loss += loss
+        train_acc += accuracy_fn(y_true=y, y_pred=y_pred) # Go from logits -> pred labels
+
+        # 3. Optimizer zero grad
+        optimizer.zero_grad()
+
+        # 4. Loss backward
+        loss.backward()
+
+        # 5. Optimizer step
+        optimizer.step()
+
+    # Calculate loss and accuracy per epoch and print out what's happening
+    train_loss /= len(data_loader)
+    train_acc /= len(data_loader)
+    print(f"Train loss: {train_loss:.5f} | Train accuracy: {train_acc:.2f}%")
+    st.text(f"Train loss: {train_loss:.5f} | Train accuracy: {train_acc:.2f}%")
+
+def test_step(data_loader: torch.utils.data.DataLoader,
+              model: torch.nn.Module,
+              loss_fn: torch.nn.Module,
+              accuracy_fn,
+              device= "cpu"):
+    test_loss, test_acc = 0, 0
+    model.to(device)
+    model.eval() # put model in eval mode
+    # Turn on inference context manager
+    with torch.inference_mode(): 
+        for X, y in data_loader:
+            # Send data to GPU
+            X, y = X.to(device), y.to(device)
+            
+            # 1. Forward pass
+            test_logits = model(X)
+            test_pred = torch.round(torch.sigmoid(test_logits)) # logits -> prediction probabilities -> prediction labels
+            
+            # 2. Calculate loss and accuracy
+            test_loss += loss_fn(test_logits, y)
+            test_acc += accuracy_fn(y_true=y,y_pred=test_pred # Go from logits -> pred labels
+            )
+        
+        # Adjust metrics and print out
+        test_loss /= len(data_loader)
+        test_acc /= len(data_loader)
+        print(f"Test loss: {test_loss:.5f} | Test accuracy: {test_acc:.2f}%\n")
+        st.text(f"Test loss: {test_loss:.5f} | Test accuracy: {test_acc:.2f}%\n")
+
+    

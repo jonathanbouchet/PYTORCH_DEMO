@@ -20,6 +20,12 @@ if "train_test_split" not in st.session_state:
 if "batch_size" not in st.session_state:
     st.session_state.batch_size = None
 
+if "train_loader" not in st.session_state:
+    st.session_state.train_loader = None
+
+if "test_loader" not in st.session_state:
+    st.session_state.test_loader = None
+
 st.title("Train Model")
 
 if st.session_state["data_generated"] is None:
@@ -33,10 +39,10 @@ else:
     import torch.nn as nn
 
     num_epochs = st.sidebar.number_input(label="The number of epochs", 
-                min_value=1000, 
-                max_value=10000, 
-                step=1000,
-                value=5000,
+                min_value=1, 
+                max_value=100, 
+                step=1,
+                value=1,
                 help="defines the number times that the learning algorithm will work through the entire training dataset.")
     st.session_state.num_epochs = num_epochs
     
@@ -86,6 +92,8 @@ else:
                     c1, c2 = st.columns(2)
                     c1.metric(label="train data", value=len(train), border=True)
                     c2.metric(label="test data", value=len(test), border=True)
+                    with st.spinner("running train / test ..."):
+                        train_model.run(train=train, test=test)
                     # train_model.run_model()
                     # display_result()
     with col2:
