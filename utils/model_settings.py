@@ -11,8 +11,17 @@ from torch.utils.data import DataLoader
 if "train_loss_val" not in st.session_state:
     st.session_state.train_loss_val = []
 
-if "train_loss_epoch" not in st.session_state:
-    st.session_state.train_loss_epoch = []
+if "train_acc" not in st.session_state:
+    st.session_state.train_acc = []
+
+if "test_loss_val" not in st.session_state:
+    st.session_state.test_loss_val = []
+
+if "test_acc" not in st.session_state:
+    st.session_state.test_acc = []
+
+if "epoch" not in st.session_state:
+    st.session_state.epoch = []
 
 def make_data_loader():
     """load data into pytorch dataloader
@@ -190,17 +199,25 @@ def run(train: ToyData, test:ToyData):
     for epoch in range(epochs):
         print(f"Epoch: {epoch}\n---------")
         st.text(f"Epoch: {epoch}\n---------")
-        train_step(data_loader=train_loader, 
+        current_loss, current_acc = train_step(data_loader=train_loader, 
             model=model, 
             loss_fn=loss_fn,
             optimizer=optimizer,
             accuracy_fn=accuracy_fn
         )
-        test_step(data_loader=test_loader,
+
+        st.session_state.train_loss_val.append(current_loss.item())
+        st.session_state.train_acc.append(current_acc)
+
+        current_loss, current_acc = test_step(data_loader=test_loader,
             model=model,
             loss_fn=loss_fn,
             accuracy_fn=accuracy_fn
         )
+
+        st.session_state.test_loss_val.append(current_loss.item())
+        st.session_state.test_acc.append(current_acc)
+        st.session_state.epoch.append(epoch)
 
 def train_step(model: torch.nn.Module,
                data_loader: torch.utils.data.DataLoader,
@@ -237,6 +254,7 @@ def train_step(model: torch.nn.Module,
     train_acc /= len(data_loader)
     print(f"Train loss: {train_loss:.5f} | Train accuracy: {train_acc:.2f}%")
     st.text(f"Train loss: {train_loss:.5f} | Train accuracy: {train_acc:.2f}%")
+    return train_loss, train_acc
 
 def test_step(data_loader: torch.utils.data.DataLoader,
               model: torch.nn.Module,
@@ -266,5 +284,6 @@ def test_step(data_loader: torch.utils.data.DataLoader,
         test_acc /= len(data_loader)
         print(f"Test loss: {test_loss:.5f} | Test accuracy: {test_acc:.2f}%\n")
         st.text(f"Test loss: {test_loss:.5f} | Test accuracy: {test_acc:.2f}%\n")
+        return test_loss, test_acc
 
     

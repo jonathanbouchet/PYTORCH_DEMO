@@ -39,10 +39,10 @@ else:
     import torch.nn as nn
 
     num_epochs = st.sidebar.number_input(label="The number of epochs", 
-                min_value=1, 
+                min_value=2, 
                 max_value=100, 
-                step=1,
-                value=1,
+                step=2,
+                value=2,
                 help="defines the number times that the learning algorithm will work through the entire training dataset.")
     st.session_state.num_epochs = num_epochs
     
@@ -82,18 +82,36 @@ else:
                             tmp_df = st.session_state.data_generated[0:100*(i+1)]
                             fig = px.scatter(tmp_df, x="Feature_0", y="Feature_1", color='target2', range_x=[x_min, x_max], range_y=[y_min, y_max])
                             st.plotly_chart(fig, use_container_width=True, key=f"tmp_df_{i}")
-                            time.sleep(0.5)
+                            time.sleep(0.1)
                     
                     train, test = mod_def.make_data_loader()
                     st.text("Train Dataset")
                     st.code(train.__repr__())
                     st.text("Test Dataset")
                     st.code(test.__repr__())
-                    c1, c2 = st.columns(2)
-                    c1.metric(label="train data", value=len(train), border=True)
-                    c2.metric(label="test data", value=len(test), border=True)
+                    # c1, c2 = st.columns(2)
+                    # c1.metric(label="train data", value=len(train), border=True)
+                    # c2.metric(label="test data", value=len(test), border=True)
                     with st.spinner("running train / test ..."):
                         train_model.run(train=train, test=test)
+                    if len(st.session_state.train_loss_val) > 0:
+                        print(f"Epoch: {st.session_state.epoch}")
+                        print(f"train loss: {st.session_state.train_loss_val}")
+                        print(f"test loss: {st.session_state.test_loss_val}")
+                        print(f"train acc: {st.session_state.train_acc}")
+                        print(f"test acc: {st.session_state.test_acc}")
+                        res_df = pd.DataFrame(data = {
+                            "epoch": st.session_state.epoch, 
+                            "Train Loss": st.session_state.train_loss_val, 
+                            "Train Accuracy": st.session_state.train_acc,
+                            "Test Loss": st.session_state.test_loss_val, 
+                            "Test Accuracy": st.session_state.test_acc})
+                        print(f"res df: {res_df}")
+                        col3, col4 = st.columns(2)
+                        with col3:
+                            st.line_chart(res_df, x="epoch", y=["Train Loss","Test Loss"])
+                        with col4:
+                            st.line_chart(res_df, x="epoch", y=["Train Accuracy", "Test Accuracy"])
                     # train_model.run_model()
                     # display_result()
     with col2:
