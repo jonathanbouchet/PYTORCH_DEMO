@@ -20,6 +20,9 @@ if "train_test_split" not in st.session_state:
 if "batch_size" not in st.session_state:
     st.session_state.batch_size = None
 
+if "learning_rate" not in st.session_state:
+    st.session_state.learning_rate = None
+
 if "train_loader" not in st.session_state:
     st.session_state.train_loader = None
 
@@ -61,6 +64,18 @@ else:
                 value=4,
                 help="the size of the batch samples")
     st.session_state.batch_size = batch_size
+
+    learning_rate = st.sidebar.number_input(label="learning rate", 
+                min_value=0.001, 
+                max_value=1.0, 
+                step=0.01,
+                value=0.01,
+                help="""
+                learning rate controls how quickly the model is adapted to the problem. 
+                Smaller learning rates require more training epochs given the smaller changes made to the weights each update, 
+                whereas larger learning rates result in rapid changes and require fewer training epochs.
+                """)
+    st.session_state.learning_rate = learning_rate
     
     col1, col2 = st.columns([0.6, 0.4])
     with col1:

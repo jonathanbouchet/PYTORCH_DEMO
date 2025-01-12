@@ -51,7 +51,7 @@ def make_model():
     # Make device agnostic code
     device = "cuda" if torch.cuda.is_available() else "cpu"
     device
-    class CircleModel(nn.Module):
+    class CNNModel(nn.Module):
         def __init__(self):
             super().__init__()
             self.layer_1 = nn.Linear(in_features=2, out_features=100)
@@ -65,9 +65,9 @@ def make_model():
 
         def forward(self, x):
             # Intersperse the ReLU activation function between layers
-            return self.layer_4(self.leakyRelu(self.layer_3(self.leakyRelu(self.layer_2(self.leakyRelu(self.layer_1(x)))))))
+            return self.layer_4(self.relu(self.layer_3(self.relu(self.layer_2(self.relu(self.layer_1(x)))))))
 
-    model = CircleModel()
+    model = CNNModel()
     return model
 
 def run_model():
@@ -164,11 +164,13 @@ def run_model():
         st.session_state.model = model
 
 
-def run(train: ToyData, test:ToyData):
+def run(train: ToyData, test:ToyData) -> None:
     """run training /testing pipeline
 
     :param ToyData train: train data custom dataset
     :param ToyData test: test data custom dataset
+
+    :return _type_: None
     """
     # convert Dataset to Loader
     train_loader = DataLoader(
@@ -193,7 +195,7 @@ def run(train: ToyData, test:ToyData):
     model.to(device)
     
     loss_fn =  nn.BCEWithLogitsLoss()
-    optimizer = torch.optim.SGD(params=model.parameters(), lr=0.1)
+    optimizer = torch.optim.SGD(params=model.parameters(), lr=st.session_state.learning_rate)
 
     epochs = st.session_state.num_epochs
     for epoch in range(epochs):
