@@ -200,7 +200,7 @@ def run(train: ToyData, test:ToyData) -> None:
     epochs = st.session_state.num_epochs
     for epoch in range(epochs):
         print(f"Epoch: {epoch}\n---------")
-        st.text(f"Epoch: {epoch}\n---------")
+        # st.text(f"Epoch: {epoch}\n---------")
         current_loss, current_acc = train_step(data_loader=train_loader, 
             model=model, 
             loss_fn=loss_fn,
@@ -220,6 +220,13 @@ def run(train: ToyData, test:ToyData) -> None:
         st.session_state.test_loss_val.append(current_loss.item())
         st.session_state.test_acc.append(current_acc)
         st.session_state.epoch.append(epoch)
+
+    with st.expander("show loss & accuracy for train / test"):
+        for epoch in range(st.session_state.num_epochs):
+            st.text(f"""epoch: {epoch+1}/{st.session_state.num_epochs}\t\t
+                    Loss train (test): {st.session_state.train_loss_val[epoch]:.3f}\t({st.session_state.test_loss_val[epoch]:.3f})
+                    Accuracy train (test): {st.session_state.train_acc[epoch]:.2f}\t({st.session_state.test_acc[epoch]:.2f})
+            """)
 
 def train_step(model: torch.nn.Module,
                data_loader: torch.utils.data.DataLoader,
@@ -255,7 +262,7 @@ def train_step(model: torch.nn.Module,
     train_loss /= len(data_loader)
     train_acc /= len(data_loader)
     print(f"Train loss: {train_loss:.5f} | Train accuracy: {train_acc:.2f}%")
-    st.text(f"Train loss: {train_loss:.5f} | Train accuracy: {train_acc:.2f}%")
+    # st.text(f"Train loss: {train_loss:.5f} | Train accuracy: {train_acc:.2f}%")
     return train_loss, train_acc
 
 def test_step(data_loader: torch.utils.data.DataLoader,
@@ -285,7 +292,7 @@ def test_step(data_loader: torch.utils.data.DataLoader,
         test_loss /= len(data_loader)
         test_acc /= len(data_loader)
         print(f"Test loss: {test_loss:.5f} | Test accuracy: {test_acc:.2f}%\n")
-        st.text(f"Test loss: {test_loss:.5f} | Test accuracy: {test_acc:.2f}%\n")
+        # st.text(f"Test loss: {test_loss:.5f} | Test accuracy: {test_acc:.2f}%\n")
         return test_loss, test_acc
 
     
