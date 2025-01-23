@@ -3,22 +3,25 @@ from sklearn import datasets
 import pandas as pd
 import plotly.express as px
 
-if "plot_type" not in st.session_state:
-    st.session_state.plot_type = None
+def initialize_session_state() -> None:
+    """initialize variables in the st.session_state
 
-if "data_parameters" not in st.session_state:
-    st.session_state.data_parameters = {}
+    :return _type_: _description_
+    """
+    if "plot_type" not in st.session_state:
+        st.session_state.plot_type = None
 
-if "features_selected" not in st.session_state:
-    st.session_state.features_selected = False
+    if "data_parameters" not in st.session_state:
+        st.session_state.data_parameters = {}
 
-if "data_submitted" not in st.session_state:
-    st.session_state.data_submitted = False
+    if "features_selected" not in st.session_state:
+        st.session_state.features_selected = False
 
-if "data_generated" not in st.session_state:
-    st.session_state.data_generated = None
+    if "data_submitted" not in st.session_state:
+        st.session_state.data_submitted = False
 
-st.title("Data preparation")
+    if "data_generated" not in st.session_state:
+        st.session_state.data_generated = None
 
 def rerun_data():
     """reset only the data parameters, not the plot type
@@ -79,6 +82,8 @@ def make_df() -> pd.DataFrame:
     st.session_state.data_generated = df
     return df
 
+initialize_session_state()
+st.title("Data preparation")
 st.sidebar.text("Toy dataset generator")
 st.divider()
 
@@ -121,10 +126,10 @@ if plot_type is not None:
                 """Larger values spread out the clusters/classes and make the classification task easier."""
             )
             st.session_state.data_parameters = {
-                 "plot_type": st.session_state.plot_type,
-                 "n_samples": n_samples,
-                 "n_features": n_features,
-                 "class_sep": class_sep
+                "plot_type": st.session_state.plot_type,
+                "n_samples": n_samples,
+                "n_features": n_features,
+                "class_sep": class_sep
             }
             if st.session_state.features_selected is False:
                 if st.sidebar.button(label="generate data", help="make plot"):
@@ -154,9 +159,9 @@ if plot_type is not None:
             help="""Standard deviation of Gaussian noise added to the data.""")
         
         st.session_state.data_parameters = {
-                 "plot_type": st.session_state.plot_type,
-                 "n_samples": n_samples,
-                 "noise": noise
+                "plot_type": st.session_state.plot_type,
+                "n_samples": n_samples,
+                "noise": noise
             }
         # if st.session_state.features_selected is False:
         if st.sidebar.button(label="generate data", help="make plot"):
