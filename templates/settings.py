@@ -82,7 +82,7 @@ def make_df() -> pd.DataFrame:
     st.session_state.data_generated = df
     return df
 
-initialize_session_state()
+# initialize_session_state()
 st.title("Data preparation")
 st.sidebar.text("Toy dataset generator")
 st.divider()

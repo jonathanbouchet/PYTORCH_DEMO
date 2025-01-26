@@ -8,26 +8,26 @@ import numpy as np
 import plotly.graph_objects as go
 import utils.model_settings as train_model
 
-if "model" not in st.session_state:
-    st.session_state.model = None
+# if "model" not in st.session_state:
+#     st.session_state.model = None
 
-if "num_epochs" not in st.session_state:
-    st.session_state.num_epochs = None
+# if "num_epochs" not in st.session_state:
+#     st.session_state.num_epochs = None
 
-if "train_test_split" not in st.session_state:
-    st.session_state.train_test_split = None
+# if "train_test_split" not in st.session_state:
+#     st.session_state.train_test_split = None
 
-if "batch_size" not in st.session_state:
-    st.session_state.batch_size = None
+# if "batch_size" not in st.session_state:
+#     st.session_state.batch_size = None
 
-if "learning_rate" not in st.session_state:
-    st.session_state.learning_rate = None
+# if "learning_rate" not in st.session_state:
+#     st.session_state.learning_rate = None
 
-if "train_loader" not in st.session_state:
-    st.session_state.train_loader = None
+# if "train_loader" not in st.session_state:
+#     st.session_state.train_loader = None
 
-if "test_loader" not in st.session_state:
-    st.session_state.test_loader = None
+# if "test_loader" not in st.session_state:
+#     st.session_state.test_loader = None
 
 st.title("Train Model")
 
