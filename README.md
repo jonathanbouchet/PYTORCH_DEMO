@@ -6,6 +6,11 @@
     - circles: `make_circles`
     - moons: `make_moons`
 
+# How to run
+```python
+uv run streamlit run main.py
+```
+
 # Status
 - work in progress
 - `main.py`: using streamlit `st.navigation` to switch between pages
