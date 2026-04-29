@@ -37,13 +37,15 @@ if "train_loader" not in st.session_state:
 if "test_loader" not in st.session_state:
     st.session_state.test_loader = None
 
-st.set_page_config(layout="wide",
-                   page_title="pytorch demo",
-                   menu_items={
-                       'Report a bug': "https://github.com/jonathanbouchet",
-                       'Get help':"https://github.com/jonathanbouchet",
-                       'About': "classification with pytorch demo"
-    })
+st.set_page_config(
+    layout="wide",
+    page_title="pytorch demo",
+    menu_items={
+        "Report a bug": "https://github.com/jonathanbouchet",
+        "Get help": "https://github.com/jonathanbouchet",
+        "About": "classification with pytorch demo",
+    },
+)
 
 settings = st.Page("templates/settings.py", title="prepare data")
 display = st.Page("templates/display.py", title="display data")

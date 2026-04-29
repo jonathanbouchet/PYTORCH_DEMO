@@ -1,7 +1,6 @@
 import streamlit as st
 import time
 from sklearn.model_selection import train_test_split
-import pandas as pd
 import torch
 import torch.nn as nn
 import numpy as np
@@ -23,6 +22,7 @@ if "test_acc" not in st.session_state:
 if "epoch" not in st.session_state:
     st.session_state.epoch = []
 
+
 def make_data_loader():
     """load data into pytorch dataloader
     1. split X, y into train / test
@@ -30,7 +30,7 @@ def make_data_loader():
     3. convert dataset to dataloader using batchsize defined by the user
     """
 
-    df = st.session_state.data_generated[["Feature_0","Feature_1","target"]]
+    df = st.session_state.data_generated[["Feature_0", "Feature_1", "target"]]
     train, test = train_test_split(df, test_size=st.session_state.test_split)
     print(f"train size : {train.shape}, test size: {test.shape}")
 
@@ -39,10 +39,14 @@ def make_data_loader():
 
     return train_data, test_data
 
+
 def accuracy_fn(y_true, y_pred):
-    correct = torch.eq(y_true, y_pred).sum().item() # torch.eq() calculates where two tensors are equal
-    acc = (correct / len(y_pred)) * 100 
+    correct = (
+        torch.eq(y_true, y_pred).sum().item()
+    )  # torch.eq() calculates where two tensors are equal
+    acc = (correct / len(y_pred)) * 100
     return acc
+
 
 def make_model():
     """define CNN model architecture
@@ -51,6 +55,7 @@ def make_model():
     # Make device agnostic code
     device = "cuda" if torch.cuda.is_available() else "cpu"
     device
+
     class CNNModel(nn.Module):
         def __init__(self):
             super().__init__()
@@ -58,36 +63,43 @@ def make_model():
             self.layer_2 = nn.Linear(in_features=100, out_features=50)
             self.layer_3 = nn.Linear(in_features=50, out_features=10)
             self.layer_4 = nn.Linear(in_features=10, out_features=1)
-            self.relu = nn.ReLU() # <- add in ReLU activation function
+            self.relu = nn.ReLU()  # <- add in ReLU activation function
             self.tanh = nn.Tanh()
             self.sigmoid = nn.Sigmoid()
             self.leakyRelu = nn.LeakyReLU()
 
         def forward(self, x):
             # Intersperse the ReLU activation function between layers
-            return self.layer_4(self.relu(self.layer_3(self.relu(self.layer_2(self.relu(self.layer_1(x)))))))
+            return self.layer_4(
+                self.relu(
+                    self.layer_3(self.relu(self.layer_2(self.relu(self.layer_1(x)))))
+                )
+            )
 
     model = CNNModel()
     return model
 
+
 def run_model():
-    """run full torch pipeline
-    """
+    """run full torch pipeline"""
     # Make device agnostic code
     device = "cuda" if torch.cuda.is_available() else "cpu"
     with st.spinner("creating model"):
         model = make_model()
         time.sleep(2)
-    # Setup loss and optimizer 
+    # Setup loss and optimizer
     loss_fn = nn.BCEWithLogitsLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
 
     # Turn data into tensors
-    X = np.array([st.session_state.data_generated['Feature_0'], 
-                  st.session_state.data_generated["Feature_1"]]
+    X = np.array(
+        [
+            st.session_state.data_generated["Feature_0"],
+            st.session_state.data_generated["Feature_1"],
+        ]
     )
     X = X.transpose()
-    y = np.array(st.session_state.data_generated['target'])
+    y = np.array(st.session_state.data_generated["target"])
     X_torch = torch.from_numpy(X).type(torch.float)
     y_torch = torch.from_numpy(y).type(torch.float)
 
@@ -95,10 +107,8 @@ def run_model():
 
     # Split data into train and test sets
     X_train, X_test, y_train, y_test = train_test_split(
-        X_torch,
-        y_torch,
-        test_size=st.session_state.train_test_split,
-        random_state=42) # make the random split reproducible
+        X_torch, y_torch, test_size=st.session_state.train_test_split, random_state=42
+    )  # make the random split reproducible
 
     len(X_train), len(X_test), len(y_train), len(y_test)
 
@@ -114,18 +124,26 @@ def run_model():
     X_train, y_train = X_train.to(device), y_train.to(device)
     X_test, y_test = X_test.to(device), y_test.to(device)
 
-    st.session_state.pytorch_data = {"X_train": X_train, "y_train": y_train, "X_test": X_test, "y_test": y_test}
+    st.session_state.pytorch_data = {
+        "X_train": X_train,
+        "y_train": y_train,
+        "X_test": X_test,
+        "y_test": y_test,
+    }
 
     for epoch in range(epochs):
         # 1. Forward pass
         y_logits = model(X_train).squeeze()
-        y_pred = torch.round(torch.sigmoid(y_logits)) # logits -> prediction probabilities -> prediction labels
-        
+        y_pred = torch.round(
+            torch.sigmoid(y_logits)
+        )  # logits -> prediction probabilities -> prediction labels
+
         # 2. Calculate loss and accuracy
-        loss = loss_fn(y_logits, y_train) # BCEWithLogitsLoss calculates loss using logits
-        acc = accuracy_fn(y_true=y_train, 
-                        y_pred=y_pred)
-        
+        loss = loss_fn(
+            y_logits, y_train
+        )  # BCEWithLogitsLoss calculates loss using logits
+        acc = accuracy_fn(y_true=y_train, y_pred=y_pred)
+
         # 3. Optimizer zero grad
         optimizer.zero_grad()
 
@@ -145,12 +163,13 @@ def run_model():
         with torch.inference_mode():
             # 1. Forward pass
             test_logits = model(X_test).squeeze()
-            test_pred = torch.round(torch.sigmoid(test_logits)) # logits -> prediction probabilities -> prediction labels
+            test_pred = torch.round(
+                torch.sigmoid(test_logits)
+            )  # logits -> prediction probabilities -> prediction labels
             # 2. Calculate loss and accuracy
             test_loss = loss_fn(test_logits, y_test)
-            test_acc = accuracy_fn(y_true=y_test,
-                                    y_pred=test_pred)
-            
+            test_acc = accuracy_fn(y_true=y_test, y_pred=test_pred)
+
             train_loss_arr.append(loss)
             test_loss_arr.append(test_loss)
             train_acc_arr.append(acc)
@@ -158,13 +177,15 @@ def run_model():
 
         # Print out what's happening
         if (epoch + 1) % 1000 == 0:
-            st.text(f"Epoch: {epoch} | Loss: {loss:.5f} | Accuracy: {acc:.2f}% | Test Loss: {test_loss:.5f} | Test Accuracy: {test_acc:.2f}%")
+            st.text(
+                f"Epoch: {epoch} | Loss: {loss:.5f} | Accuracy: {acc:.2f}% | Test Loss: {test_loss:.5f} | Test Accuracy: {test_acc:.2f}%"
+            )
 
         # save model in session_state
         st.session_state.model = model
 
 
-def run(train: ToyData, test:ToyData) -> None:
+def run(train: ToyData, test: ToyData) -> None:
     """run training /testing pipeline
 
     :param ToyData train: train data custom dataset
@@ -174,17 +195,17 @@ def run(train: ToyData, test:ToyData) -> None:
     """
     # convert Dataset to Loader
     train_loader = DataLoader(
-    dataset=train,
-    batch_size=st.session_state.batch_size,
-    shuffle=True,
-    num_workers=0
+        dataset=train,
+        batch_size=st.session_state.batch_size,
+        shuffle=True,
+        num_workers=0,
     )
 
     test_loader = DataLoader(
-    dataset=test,
-    batch_size=st.session_state.batch_size,
-    shuffle=False,
-    num_workers=0
+        dataset=test,
+        batch_size=st.session_state.batch_size,
+        shuffle=False,
+        num_workers=0,
     )
 
     # Make device agnostic code
@@ -193,28 +214,32 @@ def run(train: ToyData, test:ToyData) -> None:
         model = make_model()
         time.sleep(1)
     model.to(device)
-    
-    loss_fn =  nn.BCEWithLogitsLoss()
-    optimizer = torch.optim.SGD(params=model.parameters(), lr=st.session_state.learning_rate)
+
+    loss_fn = nn.BCEWithLogitsLoss()
+    optimizer = torch.optim.SGD(
+        params=model.parameters(), lr=st.session_state.learning_rate
+    )
 
     epochs = st.session_state.num_epochs
     for epoch in range(epochs):
         print(f"Epoch: {epoch}\n---------")
         # st.text(f"Epoch: {epoch}\n---------")
-        current_loss, current_acc = train_step(data_loader=train_loader, 
-            model=model, 
+        current_loss, current_acc = train_step(
+            data_loader=train_loader,
+            model=model,
             loss_fn=loss_fn,
             optimizer=optimizer,
-            accuracy_fn=accuracy_fn
+            accuracy_fn=accuracy_fn,
         )
 
         st.session_state.train_loss_val.append(current_loss.item())
         st.session_state.train_acc.append(current_acc)
 
-        current_loss, current_acc = test_step(data_loader=test_loader,
+        current_loss, current_acc = test_step(
+            data_loader=test_loader,
             model=model,
             loss_fn=loss_fn,
-            accuracy_fn=accuracy_fn
+            accuracy_fn=accuracy_fn,
         )
 
         st.session_state.test_loss_val.append(current_loss.item())
@@ -223,17 +248,20 @@ def run(train: ToyData, test:ToyData) -> None:
 
     with st.expander("show loss & accuracy for train / test"):
         for epoch in range(st.session_state.num_epochs):
-            st.text(f"""epoch: {epoch+1}/{st.session_state.num_epochs}\t\t
+            st.text(f"""epoch: {epoch + 1}/{st.session_state.num_epochs}\t\t
                     Loss train (test): {st.session_state.train_loss_val[epoch]:.3f}\t({st.session_state.test_loss_val[epoch]:.3f})
                     Accuracy train (test): {st.session_state.train_acc[epoch]:.2f}\t({st.session_state.test_acc[epoch]:.2f})
             """)
 
-def train_step(model: torch.nn.Module,
-               data_loader: torch.utils.data.DataLoader,
-               loss_fn: torch.nn.Module,
-               optimizer: torch.optim.Optimizer,
-               accuracy_fn,
-               device= "cpu"):
+
+def train_step(
+    model: torch.nn.Module,
+    data_loader: torch.utils.data.DataLoader,
+    loss_fn: torch.nn.Module,
+    optimizer: torch.optim.Optimizer,
+    accuracy_fn,
+    device="cpu",
+):
     train_loss, train_acc = 0, 0
     model.to(device)
     for batch, (X, y) in enumerate(data_loader):
@@ -247,7 +275,9 @@ def train_step(model: torch.nn.Module,
         # 2. Calculate loss
         loss = loss_fn(y_logits, y)
         train_loss += loss
-        train_acc += accuracy_fn(y_true=y, y_pred=y_pred) # Go from logits -> pred labels
+        train_acc += accuracy_fn(
+            y_true=y, y_pred=y_pred
+        )  # Go from logits -> pred labels
 
         # 3. Optimizer zero grad
         optimizer.zero_grad()
@@ -265,34 +295,39 @@ def train_step(model: torch.nn.Module,
     # st.text(f"Train loss: {train_loss:.5f} | Train accuracy: {train_acc:.2f}%")
     return train_loss, train_acc
 
-def test_step(data_loader: torch.utils.data.DataLoader,
-              model: torch.nn.Module,
-              loss_fn: torch.nn.Module,
-              accuracy_fn,
-              device= "cpu"):
+
+def test_step(
+    data_loader: torch.utils.data.DataLoader,
+    model: torch.nn.Module,
+    loss_fn: torch.nn.Module,
+    accuracy_fn,
+    device="cpu",
+):
     test_loss, test_acc = 0, 0
     model.to(device)
-    model.eval() # put model in eval mode
+    model.eval()  # put model in eval mode
     # Turn on inference context manager
-    with torch.inference_mode(): 
+    with torch.inference_mode():
         for X, y in data_loader:
             # Send data to GPU
             X, y = X.to(device), y.to(device)
-            
+
             # 1. Forward pass
             test_logits = model(X)
-            test_pred = torch.round(torch.sigmoid(test_logits)) # logits -> prediction probabilities -> prediction labels
-            
+            test_pred = torch.round(
+                torch.sigmoid(test_logits)
+            )  # logits -> prediction probabilities -> prediction labels
+
             # 2. Calculate loss and accuracy
             test_loss += loss_fn(test_logits, y)
-            test_acc += accuracy_fn(y_true=y,y_pred=test_pred # Go from logits -> pred labels
+            test_acc += accuracy_fn(
+                y_true=y,
+                y_pred=test_pred,  # Go from logits -> pred labels
             )
-        
+
         # Adjust metrics and print out
         test_loss /= len(data_loader)
         test_acc /= len(data_loader)
         print(f"Test loss: {test_loss:.5f} | Test accuracy: {test_acc:.2f}%\n")
         # st.text(f"Test loss: {test_loss:.5f} | Test accuracy: {test_acc:.2f}%\n")
         return test_loss, test_acc
-
-    
