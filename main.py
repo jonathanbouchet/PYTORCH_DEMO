@@ -48,7 +48,7 @@ st.set_page_config(
 )
 
 settings = st.Page("templates/settings.py", title="prepare data")
-display = st.Page("templates/display.py", title="display data")
+display = st.Page("templates/display.py", title="run model")
 
 if __name__ == "__main__":
     # initialize_session_state()

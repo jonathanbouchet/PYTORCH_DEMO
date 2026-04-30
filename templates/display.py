@@ -4,27 +4,6 @@ import plotly.express as px
 import pandas as pd
 import utils.model_settings as train_model
 
-# if "model" not in st.session_state:
-#     st.session_state.model = None
-
-# if "num_epochs" not in st.session_state:
-#     st.session_state.num_epochs = None
-
-# if "train_test_split" not in st.session_state:
-#     st.session_state.train_test_split = None
-
-# if "batch_size" not in st.session_state:
-#     st.session_state.batch_size = None
-
-# if "learning_rate" not in st.session_state:
-#     st.session_state.learning_rate = None
-
-# if "train_loader" not in st.session_state:
-#     st.session_state.train_loader = None
-
-# if "test_loader" not in st.session_state:
-#     st.session_state.test_loader = None
-
 st.title("Train Model")
 
 if st.session_state["data_generated"] is None:
@@ -111,13 +90,6 @@ else:
                             time.sleep(0.1)
 
                     train, test = mod_def.make_data_loader()
-                    # st.text("Train Dataset")
-                    # st.code(train.__repr__())
-                    # st.text("Test Dataset")
-                    # st.code(test.__repr__())
-                    # c1, c2 = st.columns(2)
-                    # c1.metric(label="train data", value=len(train), border=True)
-                    # c2.metric(label="test data", value=len(test), border=True)
                     with st.spinner("running train / test ..."):
                         train_model.run(train=train, test=test)
                     if len(st.session_state.train_loss_val) > 0:
@@ -145,8 +117,6 @@ else:
                             st.line_chart(
                                 res_df, x="epoch", y=["Train Accuracy", "Test Accuracy"]
                             )
-                    # train_model.run_model()
-                    # display_result()
     with col2:
         st.subheader("debug", divider="red")
         st.json(st.session_state)
