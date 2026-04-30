@@ -3,7 +3,6 @@ import time
 from sklearn.model_selection import train_test_split
 import torch
 import torch.nn as nn
-import numpy as np
 from utils.custom_dataloader import ToyData
 from torch.utils.data import DataLoader
 
