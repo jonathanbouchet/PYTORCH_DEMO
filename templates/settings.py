@@ -1,43 +1,21 @@
 import streamlit as st
+from utils.init_session_state import initialize_session_state
 from sklearn import datasets
 import pandas as pd
 import plotly.express as px
 
 
-def initialize_session_state() -> None:
-    """initialize variables in the st.session_state
-
-    :return _type_: _description_
-    """
-    if "plot_type" not in st.session_state:
-        st.session_state.plot_type = None
-
-    if "data_parameters" not in st.session_state:
-        st.session_state.data_parameters = {}
-
-    if "features_selected" not in st.session_state:
-        st.session_state.features_selected = False
-
-    if "data_submitted" not in st.session_state:
-        st.session_state.data_submitted = False
-
-    if "data_generated" not in st.session_state:
-        st.session_state.data_generated = None
-
-
 def rerun_data():
     """reset only the data parameters, not the plot type"""
-    print("in rerun data")
     st.session_state.data_submitted = False
-    st.session_state["features_selected"] = False
+    st.session_state.features_selected = False
 
 
 def rerun_plot_type():
     """full reset"""
-    print("in rerun plt_type")
     st.session_state.plot_type = None
     st.session_state.data_submitted = False
-    st.session_state["features_selected"] = False
+    st.session_statefeatures_selected = False
     st.session_state.data_parameters = {}
     st.session_state.data_generated = None
 
@@ -60,13 +38,12 @@ def display_data():
     return fig
 
 
-# @st.cache_data
+@st.cache_data
 def make_df() -> pd.DataFrame:
     """create toy dataset based on the user parameters
 
     :return pd.DataFrame: dataframe
     """
-    print("in make_df")
     n_features: int = 2
     params = st.session_state.data_parameters
     if st.session_state.plot_type == "blob":
@@ -100,10 +77,11 @@ def make_df() -> pd.DataFrame:
     return df
 
 
-# initialize_session_state()
+initialize_session_state()
 st.title("Data preparation")
 st.sidebar.text("Toy dataset generator")
 st.divider()
+
 
 plot_type = st.sidebar.selectbox(
     placeholder="Choose an option",
@@ -205,9 +183,7 @@ if plot_type is not None:
             df = make_df()
             fig = display_data()
             st.subheader("visualization", divider="blue")
-            st.plotly_chart(
-                fig, use_container_width=True, key="data_plot", on_select="rerun"
-            )
+            st.plotly_chart(fig, width="stretch", key="data_plot", on_select="rerun")
 
             st.subheader("raw dataframe", divider="blue")
             print(f"st.session_state.data_submitted :{st.session_state.data_submitted}")
@@ -240,3 +216,6 @@ if plot_type is not None:
                 c2.metric(label="noise", value=params["noise"], border=True)
         st.subheader("debug", divider="red")
         st.json(st.session_state)
+
+    # if __name__ == "__main__":
+    #     initialize_session_state()

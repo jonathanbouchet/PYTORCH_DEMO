@@ -84,9 +84,7 @@ else:
                                 range_x=[x_min, x_max],
                                 range_y=[y_min, y_max],
                             )
-                            st.plotly_chart(
-                                fig, use_container_width=True, key=f"tmp_df_{i}"
-                            )
+                            st.plotly_chart(fig, width="stretch", key=f"tmp_df_{i}")
                             time.sleep(0.1)
 
                     train, test = mod_def.make_data_loader()

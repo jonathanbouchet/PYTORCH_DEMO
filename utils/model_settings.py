@@ -6,21 +6,6 @@ import torch.nn as nn
 from utils.custom_dataloader import ToyData
 from torch.utils.data import DataLoader
 
-if "train_loss_val" not in st.session_state:
-    st.session_state.train_loss_val = []
-
-if "train_acc" not in st.session_state:
-    st.session_state.train_acc = []
-
-if "test_loss_val" not in st.session_state:
-    st.session_state.test_loss_val = []
-
-if "test_acc" not in st.session_state:
-    st.session_state.test_acc = []
-
-if "epoch" not in st.session_state:
-    st.session_state.epoch = []
-
 
 def make_data_loader():
     """load data into pytorch dataloader
