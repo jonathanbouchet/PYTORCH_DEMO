@@ -1,17 +1,14 @@
-# PYTORCH_DEMO
-- goal: train and test deeplearning model architecture on toys dataset using `streamlit` and `pytorch`
+# Project overview
+
+This goal of this app is: 
+
+- train and test deeplearning model architecture on toys dataset using `streamlit` and `pytorch`
 - Inspiration comes from the `tensorflow` UI: https://playground.tensorflow.org
 - I limit the toys datasets to `sklearn` datasets (https://scikit-learn.org/stable/api/sklearn.datasets.html):
     - blobs: `make_classification`
     - circles: `make_circles`
     - moons: `make_moons`
 
-# How to run
-```python
-uv run streamlit run main.py
-```
-
-# Status
 - work in progress
 - `main.py`: using streamlit `st.navigation` to switch between pages
 - `templates/settings.py`: select dataset and its parameters
@@ -20,14 +17,20 @@ uv run streamlit run main.py
     - display predictions and decision boundaries [_work in progress_]
     - display `loss` and `accuracy` vs. `epoch` [_work in progress_] 
 
-# Screenshots
+!!! info
+    This is an info window
 
-![Settings page](assets/settings_screen.png)
-![Training page](assets/training_screen.png)
+!!! danger
+    This is a danger window
 
-# Documentation
+!!! note
+    This is an note window
 
-```
-mkdocs build
-mkdocs serve -a localhost:8001
-```
+!!! tip
+    This is a tip window
+
+!!! abstract
+    This is an abstract window
+
+??? success "Click here to expand the window"
+    This text was hidden
