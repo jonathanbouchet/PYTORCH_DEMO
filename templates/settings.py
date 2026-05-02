@@ -80,7 +80,8 @@ def make_df() -> pd.DataFrame:
 initialize_session_state()
 st.title("Data preparation")
 st.sidebar.text("Toy dataset generator")
-st.divider()
+
+tab_data, tab_debug = st.tabs(["Data", "Debug"])
 
 
 plot_type = st.sidebar.selectbox(
@@ -177,45 +178,59 @@ if plot_type is not None:
                 on_click=rerun_plot_type,
             )
 
-    col1, col2 = st.columns([0.6, 0.4])
-    with col1:
-        if st.session_state.data_submitted is True:
-            df = make_df()
-            fig = display_data()
-            st.subheader("visualization", divider="blue")
-            st.plotly_chart(fig, width="stretch", key="data_plot", on_select="rerun")
+    with tab_data:
+        initialize_session_state()
+        col1, col2 = st.columns([0.6, 0.4])
+        with col1:
+            if st.session_state.data_submitted is True:
+                df = make_df()
+                fig = display_data()
+                st.subheader("visualization", divider="blue")
+                st.plotly_chart(
+                    fig, width="stretch", key="data_plot", on_select="rerun"
+                )
 
-            st.subheader("raw dataframe", divider="blue")
-            print(f"st.session_state.data_submitted :{st.session_state.data_submitted}")
-            # df = make_df()
-            # print(df)
-            st.dataframe(df)
-            # fig = display_data()
-            # st.subheader("visualization", divider="blue")
-            # st.plotly_chart(fig, use_container_width=True, key="data_plot", on_select="rerun")
-    with col2:
-        with st.container():
-            st.subheader("parameters", divider="blue")
-            params = st.session_state.data_parameters
-            if params["plot_type"] == "blob":
-                c1, c2, c3 = st.columns(3)
-                c1.metric(
-                    label="number of samples", value=params["n_samples"], border=True
+                st.subheader("raw dataframe", divider="blue")
+                print(
+                    f"st.session_state.data_submitted :{st.session_state.data_submitted}"
                 )
-                c2.metric(
-                    label="number of features", value=params["n_features"], border=True
-                )
-                c3.metric(
-                    label="class separator", value=params["class_sep"], border=True
-                )
-            else:
-                c1, c2 = st.columns(2)
-                c1.metric(
-                    label="number of samples", value=params["n_samples"], border=True
-                )
-                c2.metric(label="noise", value=params["noise"], border=True)
-        st.subheader("debug", divider="red")
-        st.json(st.session_state)
+                # df = make_df()
+                # print(df)
+                st.dataframe(df)
+                # fig = display_data()
+                # st.subheader("visualization", divider="blue")
+                # st.plotly_chart(fig, use_container_width=True, key="data_plot", on_select="rerun")
+        with col2:
+            with st.container():
+                st.subheader("parameters", divider="blue")
+                params = st.session_state.data_parameters
+                if params["plot_type"] == "blob":
+                    c1, c2, c3 = st.columns(3)
+                    c1.metric(
+                        label="number of samples",
+                        value=params["n_samples"],
+                        border=True,
+                    )
+                    c2.metric(
+                        label="number of features",
+                        value=params["n_features"],
+                        border=True,
+                    )
+                    c3.metric(
+                        label="class separator", value=params["class_sep"], border=True
+                    )
+                else:
+                    c1, c2 = st.columns(2)
+                    c1.metric(
+                        label="number of samples",
+                        value=params["n_samples"],
+                        border=True,
+                    )
+                    c2.metric(label="noise", value=params["noise"], border=True)
+        with tab_debug:
+            initialize_session_state()
+            st.subheader("debug", divider="red")
+            st.json(st.session_state)
 
     # if __name__ == "__main__":
     #     initialize_session_state()

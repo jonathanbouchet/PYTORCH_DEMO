@@ -5,6 +5,7 @@ import pandas as pd
 import utils.model_settings as train_model
 
 st.title("Train Model")
+tab_data, tab_debug = st.tabs(["Data", "Debug"])
 
 if st.session_state["data_generated"] is None:
     st.error("choose a data template")
@@ -58,8 +59,7 @@ else:
     )
     st.session_state.learning_rate = learning_rate
 
-    col1, col2 = st.columns([0.6, 0.4])
-    with col1:
+    with tab_data:
         if st.session_state.features_selected:
             x0 = "Feature_0"
             x1 = "Feature_1"
@@ -115,6 +115,6 @@ else:
                             st.line_chart(
                                 res_df, x="epoch", y=["Train Accuracy", "Test Accuracy"]
                             )
-    with col2:
+    with tab_debug:
         st.subheader("debug", divider="red")
         st.json(st.session_state)
